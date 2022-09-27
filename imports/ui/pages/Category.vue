@@ -34,26 +34,27 @@ export default {
     return {
       dialog: false,
       categories: [
-        {
-          _id: "01",
-          name: 'Coca',
-          date: new Date(),
-          description: 'soft-drink'
-        }
+
       ],
       updateDoc: null
     }
   },
+  mounted() {
+    this.getData()
+  },  
   methods: {
     handleAdd() {
       this.dialog = true
+      this.updateDoc = null
     },
     handleDelete(id) {
-      // console.log('id: ',id);
-      let index = this.categories.findIndex((doc) => {
-        return doc._id == id;
+      Meteor.call('category.remove', id, (err, res) => {
+        if(res) {
+          this.getData();
+        } else {
+          console.log(err);
+        }
       })
-      this.categories.splice(index, 1);
     },
     handleEdit(doc) {
       this.dialog = true,
@@ -61,20 +62,18 @@ export default {
       this.updateDoc.date = moment(doc.date).format('YYYY-MM-DD')
       
     },
-    close(doc) {
-      if(doc._id) {
-        let index = this.categories.findIndex((obj) => {
-          return obj._id == doc._id;
-        })
-        this.categories[index].name = doc.name;
-        this.categories[index].date = doc.date;
-        this.categories[index].description = doc.description;
-        this.updateDoc = null;
-        this.dialog = false
-      } else {
-        this.categories.push(doc);
-        this.dialog = false
-      }
+    close() {
+      this.getData();
+      this.dialog = false
+    },
+    getData() {
+      Meteor.call('category.find', (err, res) => {
+        if(res) {
+          this.categories = res
+        } else {
+          console.log(err);
+        }
+      })
     }
   }
 }

@@ -34,53 +34,47 @@ export default {
     return {
       dialog: false,
       items: [
-        {
-          _id: "01",
-          name: 'Coca',
-          date: new Date(),
-          categoryId: '01',
-          categoryName: 'Soft-Drink',
-          description: 'Cocal 500ml',
-          status: 'active'
-        }
+  
       ],
       updateDoc: null
     }
   },
+  mounted() {
+    this.getData()
+  },
   methods: {
     handleAdd() {
       this.dialog = true
+      this.updateDoc = null
     },
     handleDelete(id) {
-      // console.log('id: ',id);
-      let index = this.items.findIndex((doc) => {
-        return doc._id == id;
+      Meteor.call('item.remove', id, (err, res) => {
+        if(res) {
+          this.getData();
+        } else {
+          console.log(err);
+        }
       })
-      this.items.splice(index, 1);
     },
     handleEdit(doc) {
       this.dialog = true,
       this.updateDoc = Object.assign({}, doc);
+      delete this.updateDoc.categoryName
       this.updateDoc.date = moment(doc.date).format('YYYY-MM-DD')
       
     },
-    close(doc) {
-      if(doc._id) {
-        let index = this.items.findIndex((obj) => {
-          return obj._id == doc._id;
-        })
-        this.items[index].name = doc.name;
-        this.items[index].date = doc.date;
-        this.items[index].categoryId = doc.categoryId;
-        this.items[index].categoryName = doc.categoryName;
-        this.items[index].description = doc.description;
-        this.items[index].status = doc.status;
-        this.updateDoc = null;
-        this.dialog = false
-      } else {
-        this.items.push(doc);
-        this.dialog = false
-      }
+    close() {
+      this.getData();
+      this.dialog = false
+    },
+    getData() {
+      Meteor.call('item.find', (err, res) => {
+        if(res) {
+          this.items = res
+        } else {
+          console.log(err);
+        }
+      })
     }
   }
 }

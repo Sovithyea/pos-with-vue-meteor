@@ -49,9 +49,20 @@
             },
             methods: {
                 handleSubmit() {
-                    this.form.date = moment(this.form.date, 'YYYY-MM-DD').toDate()
+                    this.form.date = moment(this.form.date, 'YYYY-MM-DD').toDate();
+                    let method = 'category.insert';
+                    if(this.updateDoc) {
+                        method = 'category.update';
+                    }
+                    Meteor.call(method, this.form, (err, res) => {
+                        if(res) {
+                            this.$emit('close')
+                        } else {
+                            console.log(err);
+                        }
+                    })
                     // console.log(this.form);
-                    this.$emit('close', this.form)
+                    
                 }
             }
         }

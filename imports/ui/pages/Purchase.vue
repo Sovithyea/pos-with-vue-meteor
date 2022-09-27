@@ -34,57 +34,47 @@ export default {
     return {
       dialog: false,
       items: [
-        {
-          _id: "01",
-          supplierId: '01',
-          itemId: '01',
-          name: 'Pizza',
-          cost: 4000,
-          price: 5000,
-          qty: 13,
-          data: new Date(),
-          status: "active"
-        }
+      
       ],
       updateDoc: null
     }
   },
+  mounted() {
+    this.getData()
+  },
   methods: {
     handleAdd() {
       this.dialog = true
+      this.updateDoc = null
     },
     handleDelete(id) {
-      // console.log('id: ',id);
-      let index = this.items.findIndex((doc) => {
-        return doc._id == id;
+      Meteor.call('purchase.remove', id, (err, res) => {
+        if(res) {
+          this.getData()
+        } else {
+          console.log(err);
+        }
       })
-      this.items.splice(index, 1);
     },
     handleEdit(doc) {
       this.dialog = true,
       this.updateDoc = Object.assign({}, doc);
       this.updateDoc.date = moment(doc.date).format('YYYY-MM-DD')
-      
+      delete this.updateDoc.name
+      // console.log(this.updateDoc);
     },
-    close(doc) {
-      if(doc._id) {
-        let index = this.items.findIndex((obj) => {
-          return obj._id == doc._id;
-        })
-        this.items[index].supplierId = doc.supplierId;
-        this.items[index].itemId = doc.itemId;
-        this.items[index].name = doc.name;
-        this.items[index].cost = doc.cost;
-        this.items[index].price = doc.price;
-        this.items[index].qty = doc.qty;
-        this.items[index].date = doc.date;
-        this.items[index].status = doc.status;
-        this.updateDoc = null;
+    close() {
         this.dialog = false
-      } else {
-        this.items.push(doc);
-        this.dialog = false
-      }
+        this.getData()
+    },
+    getData() {
+      Meteor.call('purchase.find', (err, res) => {
+        if(res) {
+          this.items = res
+        } else {
+          console.log(err);
+        }
+      })
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <q-card>
-            <q-card-section class="text-center text-h5">Category Form</q-card-section>
+            <q-card-section class="text-center text-h5">Item Form</q-card-section>
             <q-card-section>
                 <div class="fit row justify-evenly">
                     <div class="col-xs-12 col-sm-4 q-ma-sm">
@@ -72,32 +72,28 @@
             },
             methods: {
                 handleSubmit() {
-                    this.form.date = moment(this.form.date, 'YYYY-MM-DD').toDate()
-                    // console.log(this.form);
-                    let index = this.categoryOpts.findIndex((doc) => {
-                        return this.form.categoryId == doc._id;
-                    })
-                    this.form.categoryName = this.categoryOpts[index].name;
-                    this.$emit('close', this.form)
+                    this.form.date = moment(this.form.date, 'YYYY-MM-DD').toDate();
+                    method = "item.insert";
+                    if(this.updateDoc) {
+                        method = "item.update"
+                    }
+                    Meteor.call(method, this.form, (err, res) => {
+                        if(res) {
+                            this.$emit('close', this.form)
+                        } else {
+                            console.log(err);
+                        }
+                    })                    
+                    
                 },
                 getCategory() {
-                    this.categoryOpts = [
-                        {
-                            _id: '01',
-                            name: 'Soft-Drink',
-                            date: new Date(),
-                            description: 'soft drink'
-                        },
-
-                        {
-                            _id: '02',
-                            name: 'Food',
-                            date: new Date(),
-                            description: 'Food'
+                    Meteor.call('category.find', (err, res) => {
+                        if(res) {
+                            this.categoryOpts = res;
+                        } else {
+                            console.log(err);
                         }
-                        
-                        
-                    ]
+                    })
                 }
             }
         }

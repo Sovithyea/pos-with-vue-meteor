@@ -101,64 +101,35 @@
             },
             methods: {
                 handleSubmit() {
-                    this.form.date = moment(this.form.date, 'YYYY-MM-DD').toDate()
-                    let index = this.supplierOpts.findIndex((doc) => {
-                        return this.form.supplierId == doc._id;
+                    // this.form.date = moment(this.form.date, 'YYYY-MM-DD').toDate()
+                    // console.log(this.form);
+                    let method = this.updateDoc ? 'purchase.update' : 'purchase.add'
+                    Meteor.call( method , this.form, (err, res) => {
+                        if(res) {
+                            this.$emit('close')
+                        } else {
+                            console.log(err);
+                        }
                     })
-                    let indexItem = this.itemOpts.findIndex((doc) => {
-                        return this.form.itemId == doc._id;
-                    })
-                    console.log(this.form);
-                    this.form.company = this.supplierOpts[index].company;
-                    this.form.name = this.itemOpts[indexItem].name;
-                    console.log(this.form);
-                    this.$emit('close', this.form)
                 },
                 getSupplier() {
-                    this.supplierOpts = [
-                        {
-                            _id: '01',
-                            company: 'Yamato Green',
-                            ownerName: "Katsuhito",
-                            phone: '012321312',
-                            address: 'Battambang',
-                            status: 'active'
-                        },
-
-                        {
-                            _id: '02',
-                            company: 'ItsumoTec',
-                            ownerName: "Rin Darith",
-                            phone: '012321312',
-                            address: 'PhnomPenh',
-                            status: 'inactive'
+                    Meteor.call('supplier.find', (err, res) => {
+                        if(res) {
+                            this.supplierOpts = res
+                        } else {
+                            console.log(err);
                         }
-                           
-                    ]
+                    })
                 },
 
                 getItem() {
-                    this.itemOpts = [
-                        {
-                            _id: '01',
-                            name: 'Coca',
-                            categoryName: 'Drink',
-                            categoryId: '01',
-                            date: new Date(),
-                            description: 'Coca 1.25L',
-                            status: 'active'
-                        },
-
-                        {
-                            _id: '01',
-                            name: 'Fanta',
-                            categoryName: 'Drink',
-                            categoryId: '01',
-                            date: new Date(),
-                            description: 'Fanta 1.25L',
-                            status: 'active'
+                    Meteor.call('item.find', (err, res) => {
+                        if(res) {
+                            this.itemOpts = res
+                        } else {
+                            console.log(err);
                         }
-                    ]   
+                    })
                 }
             }
         }

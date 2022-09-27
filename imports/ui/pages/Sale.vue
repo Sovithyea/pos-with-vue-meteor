@@ -96,6 +96,7 @@
 
 <script>
 import moment from 'moment'
+import { MeteorData } from 'vue-meteor-tracker';
 
 export default {
     data() {
@@ -146,15 +147,23 @@ export default {
                     qty: it.qty
                 });
             });
-
-            console.log('doc', doc);
-            this.clearForm();
+            Meteor.call('invoice.insert', doc, (err, res) => {
+                if(res) {
+                    this.clearForm();
+                } else {
+                    console.log(err);
+                }
+            })
         },
         handleRemove(index) {
             this.form.items.splice(index, 1)
         },
         getInvoiceNumber() {
-            this.form.invoiceNumber=1
+            Meteor.call('invoice.number', (err, res) => {
+                if(res) {
+                    this.form.invoiceNumber = res
+                }
+            })
         },
         total() {
             let total = 0;
@@ -181,36 +190,21 @@ export default {
             console.log('form: ', this.form);
         },
         getCustomer() {
-            this.customerOpts = [
-                {
-                    _id: "01",
-                    name: "Vithyea"
-                },
-                {
-                    _id: "02",
-                    name: "Kun"
+            Meteor.call('customer.find', (err, res) => {
+                if(res) {
+                    this.customerOpts = res
+                } else {
+                    console.log(err);
                 }
-            ]
+            })
         },
 
         getPurchase() {
-            this.itemOpts = [
-                {
-                    _id: '01',
-                    itemId: '01',
-                    name: 'Coca',
-                    price: 5500,
-                    qty: 15
-                },
-
-                {
-                    _id: '02',
-                    itemId: '02',
-                    name: 'Fanta',
-                    price: 650,
-                    qty: 17
-                },
-            ]
+            Meteor.call('purchase.find', (err, res) => {
+                if(res) {
+                    this.itemOpts = res
+                }
+            })
         }
     },
     mounted() {

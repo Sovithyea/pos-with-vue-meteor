@@ -75,7 +75,18 @@
                 handleSubmit() {
                     this.form.dob = moment(this.form.dob, 'YYYY-MM-DD').toDate()
                     // console.log(this.form);
-                    this.$emit('close', this.form)
+                    if(this.updateDoc) {
+                        method = 'customer.update'
+                    } else {
+                        method = 'customer.insert'
+                    }
+                    Meteor.call(method, this.form, (err, res) => {
+                        if(res) {
+                            this.$emit('close', this.form)
+                        } else {
+                            console.log(err);
+                        }
+                    })
                 }
             }
         }

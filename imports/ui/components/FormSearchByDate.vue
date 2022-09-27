@@ -54,7 +54,12 @@ export default {
     },
     methods: {
         findByDate() {
-            this.$emit('searchByDate', this.form);
+            let date = {
+                fromDate: moment(this.form.fromDate, 'DD-MM-YYYY').toDate(),
+                toDate: moment(this.form.toDate, 'DD-MM-YYYY').toDate(),
+
+            }
+            this.$emit('searchByDate', date);
             // console.log(this.form);
         }
     }

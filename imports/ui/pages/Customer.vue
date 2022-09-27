@@ -28,59 +28,53 @@
 import CustomerForm from '../components/CustomerForm.vue'
 import CustomerTable from '../components/CustomerTable.vue'
 import moment from 'moment'
+import { MeteorData } from 'vue-meteor-tracker'
 export default {
   components: { CustomerForm, CustomerTable },
   data() {
     return {
       dialog: false,
       customers: [
-        {
-          _id: "01",
-          name: 'Vithyea',
-          gender: 'male',
-          dob: new Date(),
-          phone: '09923436321',
-          address: 'BTB',
-          status: 'active'
-        }
+
       ],
       updateDoc: null
     }
   },
+  mounted() {
+    this.getData()
+  },
   methods: {
     handleAdd() {
-      this.dialog = true
+      this.dialog = true;
+      this.updateDoc = null
     },
     handleDelete(id) {
       // console.log('id: ',id);
-      let index = this.customers.findIndex((doc) => {
-        return doc._id == id;
+      Meteor.call('customer.remove', id, (err, res) => {
+        if(res) {
+          this.getData();
+        } else {
+          console.log(err);
+        }
       })
-      this.customers.splice(index, 1);
     },
     handleEdit(doc) {
       this.dialog = true,
       this.updateDoc = Object.assign({}, doc);
       this.updateDoc.dob = moment(doc.dob).format('YYYY-MM-DD')
     },
-    close(doc) {
-      if(doc._id) {
-        let index = this.customers.findIndex((obj) => {
-          return obj._id == doc._id;
-        })
-        this.customers[index].name = doc.name;
-        this.customers[index].gender = doc.gender;
-        this.customers[index].dob = doc.dob;
-        this.customers[index].phone = doc.phone;
-        this.customers[index].address = doc.address;
-        this.customers[index].status = doc.status;
-        this.updateDoc = null;
-        doc = null;
+    close() {
         this.dialog = false
-      } else {
-        this.customers.push(doc);
-        this.dialog = false
-      }
+        this.getData();
+    },
+    getData() {
+      Meteor.call('customer.find', (err, res) => {
+        if(res) {
+          this.customers = res
+        } else {
+          console.log(err);
+        }
+      })
     }
   }
 }

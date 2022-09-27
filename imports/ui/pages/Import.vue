@@ -50,20 +50,14 @@ export default {
     methods: {
         searchByDate(date) {
             console.log('Date: ', date);
-            this.items = [
-                {
-                    _id: '01',
-                    date: new Date(),
-                    company: "Yamato Green",
-                    name: "Coca",
-                    remains: 12,
-                    cost: 5500,
-                    price: 6000,
-                    qty: 35,
-                    status: "active"
+            Meteor.call('import.findByDate', date, (err, res) => {
+                if(res) {
+                    this.items = res
+                    console.log('lol', res);
+                } else {
+                    console.log(err);
                 }
-
-            ]
+            })
         }
     }
 }

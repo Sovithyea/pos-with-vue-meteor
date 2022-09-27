@@ -41,6 +41,8 @@
   </template>
   
     <script>
+import { MeteorData } from 'vue-meteor-tracker'
+
         export default {
             props: {
                 updateDoc: {
@@ -67,9 +69,18 @@
             },
             methods: {
                 handleSubmit() {
+                    let method = 'supplier.insert';
+                    if(this.updateDoc) {
+                        method = 'supplier.update'
+                    }
+                    Meteor.call(method, this.form, (err, res) => {
+                        if(res) {
+                            this.$emit('close', this.form)
+                        } else {
+                            console.log(err);
+                        }
+                    })
                     
-                    // console.log(this.form);
-                    this.$emit('close', this.form)
                 }
             }
         }
